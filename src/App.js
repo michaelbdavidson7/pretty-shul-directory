@@ -19,7 +19,7 @@ class App extends Component {
         </header>
         <br />
         <h3 className="App-intro">
-          Forget someone's name and it's too late to ask?
+          Forget someone's name and now it's too late to ask?
         </h3>
         <br />
         <div className="col-md-10">
