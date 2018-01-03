@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import logo from './Star_of_David.svg';
 import placeholderImg from './placeholder.svg';
 import './App.css';
-import ModalExample from './Modal';
 
 class App extends Component {
   constructor(props) {
@@ -23,7 +22,7 @@ class App extends Component {
           Forget someone's name and now it's too late to ask?
         </h3>
         <br />
-        <div className="col-md-10 col-sm-12">
+        <div className="col-md-10">
           <div className="card-columns offset-md-3">
             {this.sampleDirectory.map((person) => {
               return <div className="card" style={{ width: "20rem" }}>
@@ -37,7 +36,6 @@ class App extends Component {
             })}
           </div>
         </div>
-        <ModalExample buttonLabel="asdf" />
       </div>
     );
   }
