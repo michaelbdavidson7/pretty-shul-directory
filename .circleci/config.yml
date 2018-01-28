@@ -21,6 +21,7 @@ jobs:
 
     steps:
       - checkout
+      - run: npm install
 
       # Download and cache dependencies
       - restore_cache:
