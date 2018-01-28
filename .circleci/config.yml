@@ -5,6 +5,9 @@
 version: 2
 jobs:
   build:
+    dependencies:
+      override:
+      - npm install
     docker:
       # specify the version you desire here
       - image: circleci/node:7.10
@@ -26,9 +29,7 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: 
-      - npm install
-      - react-scripts build
+      - run: react-scripts build
 
       - save_cache:
           paths:
