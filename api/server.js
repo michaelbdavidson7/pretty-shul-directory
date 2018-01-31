@@ -26,12 +26,17 @@ var app = express();
 // Configure Express application.
 app.use(require('morgan')('combined'));
 
-// curl -v -H "Authorization: Bearer 123456789" http://127.0.0.1:3000/
-// curl -v http://127.0.0.1:3000/?access_token=123456789
-app.get('/',
+// curl -v -H "Authorization: Bearer 123456789" http://127.0.0.1:3000/login
+// curl -v http://127.0.0.1:3000/login?access_token=123456789
+app.get('/login',
   passport.authenticate('bearer', { session: false }),
   function(req, res) {
     res.json({ username: req.user.username, email: req.user.emails[0].value });
+  });
+
+  app.get('/userDirectory',
+  function(req, res) {
+    res.json({ name: 'Dergus Bergus', joinYear: 2012 });
   });
 
 app.listen(3000);
