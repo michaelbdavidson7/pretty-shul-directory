@@ -12,8 +12,8 @@ var config = require('./config');
 // `cb` with a user object, which will be set at `req.user` in route handlers
 // after authentication.
 passport.use(new Strategy(
-  function(token, cb) {
-    db.users.findByToken(token, function(err, user) {
+  function (token, cb) {
+    db.users.findByToken(token, function (err, user) {
       if (err) { return cb(err); }
       if (!user) { return cb(null, false); }
       return cb(null, user);
@@ -29,6 +29,7 @@ app.use(require('morgan')('combined'));
 
 console.log(config.connString);
 var dbConn2 = config.connString;
+var collection = {};
 MongoClient.connect(dbConn2, function (err, db) {
   if (err) throw err
 
@@ -38,27 +39,44 @@ MongoClient.connect(dbConn2, function (err, db) {
 
   //   console.log(result)
   // })
-  
-  const collection = db.db("directory").collection("person");
-  // perform actions on the collection object
-  collection.find({}).toArray(function(err, result) {
-    if (err) throw err;
-    console.log(result);
-    db.close();
-  });
+
+  personCollection = db.db("directory").collection("person");
+  // // perform actions on the collection object
+  // collection.find({}).toArray(function(err, result) {
+  //   if (err) throw err;
+  //   console.log(result);
+  //   db.close();
+  // });
+
+  // curl -v -H "Authorization: Bearer 123456789" http://127.0.0.1:3000/login
+  // curl -v http://127.0.0.1:3000/login?access_token=123456789
+  app.get('/login',
+    passport.authenticate('bearer', { session: false }),
+    function (req, res) {
+      res.json({ username: req.user.username, email: req.user.emails[0].value });
+    });
+
+  app.get('/people',
+    function (req, res) {
+      personCollection.find({}).toArray(function (err, result) {
+        if (err) throw err;
+        res.json(result);
+        // db.close();
+      });
+    });
+
+  app.post('/people',
+    function (req, res) {
+      var fakeName =  Math.random();
+      personCollection.insertOne({name:"derp"}, function(err, result){
+        if(err) throw err;
+        res.json(result);
+        // db.close();
+      });
+    });
+
+
+
 })
-
-// curl -v -H "Authorization: Bearer 123456789" http://127.0.0.1:3000/login
-// curl -v http://127.0.0.1:3000/login?access_token=123456789
-app.get('/login',
-  passport.authenticate('bearer', { session: false }),
-  function(req, res) {
-    res.json({ username: req.user.username, email: req.user.emails[0].value });
-  });
-
-  app.get('/userDirectory',
-  function(req, res) {
-    res.json({ name: 'Dergus Bergus', joinYear: 2012 });
-  });
 
 app.listen(3000);
