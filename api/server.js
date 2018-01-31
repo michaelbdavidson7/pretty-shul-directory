@@ -1,9 +1,14 @@
 var express = require('express');
 var passport = require('passport');
 var Strategy = require('passport-http-bearer').Strategy;
+var bodyParser = require('body-parser');
 var db = require('./db');
 var MongoClient = require('mongodb').MongoClient
 var config = require('./config');
+var multer = require('multer'); // v1.0.5
+var upload = multer(); // for parsing multipart/form-data
+var ObjectID = require('mongodb').ObjectID;
+
 
 // Configure the Bearer strategy for use by Passport.
 //
@@ -26,6 +31,7 @@ var app = express();
 
 // Configure Express application.
 app.use(require('morgan')('combined'));
+app.use(bodyParser.json()); // for parsing application/json
 
 console.log(config.connString);
 var dbConn2 = config.connString;
@@ -66,12 +72,28 @@ app.post('/people',
     });
   });
 
-  app.delete('/people',
+  app.put('/people', upload.array(), 
   function (req, res) {
     MongoClient.connect(dbConn2, function (err, db) {
       if (err) throw err
 
-      idObj = {_id: '5a723ac152f7434c314cba04'}
+      console.log(req.body);
+      var queryObj = {_id : ObjectID(req.body._id) };
+      var changeObj = { $set: { name: req.body.name }};
+      db.db("directory").collection("person").updateMany(queryObj, changeObj, function (err, result) {
+        if (err) throw err;
+        res.json(result);
+        db.close();
+      });
+    });
+  });
+
+  app.delete('/people',
+  function (req, res) {
+    MongoClient.connect(dbConn2, function (err, db) {
+      if (err) throw err
+      
+      idObj = {_id: ObjectID(req.body._id)}
       db.db("directory").collection("person").deleteOne(idObj, function (err, result) {
         if (err) throw err;
         res.json(result);
