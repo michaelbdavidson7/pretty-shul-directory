@@ -3,7 +3,7 @@ var passport = require('passport');
 var Strategy = require('passport-http-bearer').Strategy;
 var db = require('./db');
 var MongoClient = require('mongodb').MongoClient
-
+var config = require('./config');
 
 // Configure the Bearer strategy for use by Passport.
 //
@@ -27,7 +27,8 @@ var app = express();
 // Configure Express application.
 app.use(require('morgan')('combined'));
 
-
+console.log(config.connString);
+var dbConn2 = config.connString;
 MongoClient.connect(dbConn2, function (err, db) {
   if (err) throw err
 
