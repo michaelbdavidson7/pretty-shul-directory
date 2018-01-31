@@ -66,5 +66,19 @@ app.post('/people',
     });
   });
 
+  app.delete('/people',
+  function (req, res) {
+    MongoClient.connect(dbConn2, function (err, db) {
+      if (err) throw err
+
+      idObj = {_id: '5a723ac152f7434c314cba04'}
+      db.db("directory").collection("person").deleteOne(idObj, function (err, result) {
+        if (err) throw err;
+        res.json(result);
+        db.close();
+      });
+    });
+  });
+
 
 app.listen(3000);
