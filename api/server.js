@@ -2,6 +2,7 @@ var express = require('express');
 var passport = require('passport');
 var Strategy = require('passport-http-bearer').Strategy;
 var db = require('./db');
+var MongoClient = require('mongodb').MongoClient
 
 
 // Configure the Bearer strategy for use by Passport.
@@ -25,6 +26,26 @@ var app = express();
 
 // Configure Express application.
 app.use(require('morgan')('combined'));
+
+
+MongoClient.connect(dbConn2, function (err, db) {
+  if (err) throw err
+
+  // console.log(db.collection('person'));
+  // db. .collection.person.find().toArray(function (err, result) {
+  //   if (err) throw err
+
+  //   console.log(result)
+  // })
+  
+  const collection = db.db("directory").collection("person");
+  // perform actions on the collection object
+  collection.find({}).toArray(function(err, result) {
+    if (err) throw err;
+    console.log(result);
+    db.close();
+  });
+})
 
 // curl -v -H "Authorization: Bearer 123456789" http://127.0.0.1:3000/login
 // curl -v http://127.0.0.1:3000/login?access_token=123456789
