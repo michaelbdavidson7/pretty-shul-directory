@@ -29,54 +29,42 @@ app.use(require('morgan')('combined'));
 
 console.log(config.connString);
 var dbConn2 = config.connString;
-var collection = {};
-MongoClient.connect(dbConn2, function (err, db) {
-  if (err) throw err
 
-  // console.log(db.collection('person'));
-  // db. .collection.person.find().toArray(function (err, result) {
-  //   if (err) throw err
 
-  //   console.log(result)
-  // })
+// curl -v -H "Authorization: Bearer 123456789" http://127.0.0.1:3000/login
+// curl -v http://127.0.0.1:3000/login?access_token=123456789
+app.get('/login',
+  passport.authenticate('bearer', { session: false }),
+  function (req, res) {
+    res.json({ username: req.user.username, email: req.user.emails[0].value });
+  });
 
-  personCollection = db.db("directory").collection("person");
-  // // perform actions on the collection object
-  // collection.find({}).toArray(function(err, result) {
-  //   if (err) throw err;
-  //   console.log(result);
-  //   db.close();
-  // });
+app.get('/people',
+  function (req, res) {
+    MongoClient.connect(dbConn2, function (err, db) {
+      if (err) throw err
 
-  // curl -v -H "Authorization: Bearer 123456789" http://127.0.0.1:3000/login
-  // curl -v http://127.0.0.1:3000/login?access_token=123456789
-  app.get('/login',
-    passport.authenticate('bearer', { session: false }),
-    function (req, res) {
-      res.json({ username: req.user.username, email: req.user.emails[0].value });
-    });
-
-  app.get('/people',
-    function (req, res) {
-      personCollection.find({}).toArray(function (err, result) {
+      db.db("directory").collection("person").find({}).toArray(function (err, result) {
         if (err) throw err;
         res.json(result);
-        // db.close();
+        db.close();
       });
     });
+  });
 
-  app.post('/people',
-    function (req, res) {
-      var fakeName =  Math.random();
-      personCollection.insertOne({name:"derp"}, function(err, result){
-        if(err) throw err;
+app.post('/people',
+  function (req, res) {
+    MongoClient.connect(dbConn2, function (err, db) {
+      if (err) throw err
+
+      var testObj = { name: "derp" };
+      db.db("directory").collection("person").insertOne(testObj, function (err, result) {
+        if (err) throw err;
         res.json(result);
-        // db.close();
+        db.close();
       });
     });
+  });
 
-
-
-})
 
 app.listen(3000);
