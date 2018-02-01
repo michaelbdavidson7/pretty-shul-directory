@@ -18,9 +18,10 @@ class App extends Component {
           {/* <img src={logo} className="App-logo my-2 my-lg-0" alt="logo" /> */}
         </header>
         <br />
-        <h3 className="App-intro">
-          Forget someone's name and now it's too late to ask?
-        </h3>
+        <h2>
+          Remember the face, but not the name?
+        </h2>
+        <h4>Our free, password-protected picture directory will help you find the name of who you were looking for</h4>
         <br />
         <div className="col-md-10">
           <div className="card-columns offset-md-3">
