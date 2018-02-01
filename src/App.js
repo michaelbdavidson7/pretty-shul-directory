@@ -16,6 +16,9 @@ class App extends Component {
         <header className="navbar navbar-expand-lg navbar-dark bg-primary">
           <h1 className="active "> Private Directory</h1>
           {/* <img src={logo} className="App-logo my-2 my-lg-0" alt="logo" /> */}
+          {/* <form class="form-inline my-2 my-lg-0">
+            <button class="btn btn-secondary my-2 my-sm-0" type="submit">Github</button>
+          </form> */}
         </header>
         <br />
         <h2>
@@ -26,7 +29,7 @@ class App extends Component {
         <div className="col-md-10">
           <div className="card-columns offset-md-3">
             {this.sampleDirectory.map((person) => {
-              return <PersonCard person={person}  />
+              return <PersonCard person={person} />
             })}
           </div>
         </div>
