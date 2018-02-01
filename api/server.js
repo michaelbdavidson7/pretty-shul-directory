@@ -90,13 +90,13 @@ app.post('/signup', function (req, res) {
 
 
       bcrypt.hash(req.body.adminPassword, saltRounds, function (err, adminPasswordHash) {
-        var newOrgAdmin = { username: req.body.adminUsername, password: adminPasswordHash, orgId: newOrgResponse, isAdmin: true };
+        var newOrgAdmin = { username: req.body.adminUsername, password: adminPasswordHash, saltRoundsNum:saltRounds, orgId: newOrgResponse, isAdmin: true };
 
         db.db("directory").collection("login").insertOne(newOrgAdmin, function (err, result) {
           if (err) throw err;
 
           bcrypt.hash(req.body.userPassword, saltRounds, function (err, userPasswordHash) {
-            var newOrgPublic = { username: req.body.publicUsername, password: userPasswordHash, orgId: newOrgResponse, isAdmin: false };
+            var newOrgPublic = { username: req.body.publicUsername, password: userPasswordHash, saltRoundsNum:saltRounds, orgId: newOrgResponse, isAdmin: false };
 
             db.db("directory").collection("login").insertOne(newOrgPublic, function (err, result) {
               if (err) throw err;
