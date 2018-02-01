@@ -125,14 +125,16 @@ app.post('/people',
     });
   });
 
-app.put('/people', upload.array(),
+app.put('/people',
+  passport.authenticate('basic', { session: false }),
+  upload.array(),
   function (req, res) {
     MongoClient.connect(dbConn, function (err, db) {
       if (err) throw err
 
       console.log(req.body);
-      var queryObj = { _id: ObjectID(req.body._id) };
-      var changeObj = { $set: { name: req.body.name, orgId: req.user.orgId } };
+      var queryObj = { _id: ObjectID(req.body._id), orgId: req.user.orgId };
+      var changeObj = { $set: { name: req.body.name } };
       db.db("directory").collection("person").updateMany(queryObj, changeObj, function (err, result) {
         if (err) throw err;
         res.json(result);
