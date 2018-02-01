@@ -102,7 +102,7 @@ app.get('/people',
     MongoClient.connect(dbConn, function (err, db) {
       if (err) throw err
 
-      db.db("directory").collection("person").find({}).toArray(function (err, result) {
+      db.db("directory").collection("person").find({orgId:req.user.orgId}).toArray(function (err, result) {
         if (err) throw err;
         res.json(result);
         db.close();
@@ -116,8 +116,8 @@ app.post('/people',
     MongoClient.connect(dbConn, function (err, db) {
       if (err) throw err
 
-      var testObj = { name: "derp" };
-      db.db("directory").collection("person").insertOne(testObj, function (err, result) {
+      var payloadObj = { name: req.body.name, orgId: req.user.orgId };
+      db.db("directory").collection("person").insertOne(payloadObj, function (err, result) {
         if (err) throw err;
         res.json(result);
         db.close();
@@ -132,7 +132,7 @@ app.put('/people', upload.array(),
 
       console.log(req.body);
       var queryObj = { _id: ObjectID(req.body._id) };
-      var changeObj = { $set: { name: req.body.name } };
+      var changeObj = { $set: { name: req.body.name,  orgId: req.user.orgId } };
       db.db("directory").collection("person").updateMany(queryObj, changeObj, function (err, result) {
         if (err) throw err;
         res.json(result);
@@ -148,6 +148,14 @@ app.delete('/people',
       if (err) throw err
 
       idObj = { _id: ObjectID(req.body._id) }
+      db.db("directory").collection("person").findOne(idObj, function (err, getResult) {
+        if (err) throw err;
+        if (!getResult) res.status(400).end();
+        if(getResult.orgId != req.user.orgId){
+          res.status(500).end();
+        }
+      });
+
       db.db("directory").collection("person").deleteOne(idObj, function (err, result) {
         if (err) throw err;
         res.json(result);
