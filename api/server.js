@@ -61,14 +61,21 @@ app.post('/signup', function (req, res) {
     // TODO: need to check if exists
     db.db("directory").collection("org").insertOne(newOrg, function (err, result) {
       if (err) throw err;
-      this.newOrgResponse = result;
-      db.close();
+      newOrgResponse = result.insertedId;
 
-      // TODO: promises
-      var newOrgAdmin = { username: req.body.adminUserame, password: bcrypt.hash(req.body.adminPassword, bcrypt.genSaltSync(8)), orgId: newOrgResponse._id };
-      var newOrgPublic = { username: req.body.publicUsername, password: bcrypt.hash(req.body.userPassword, bcrypt.genSaltSync(8)), orgId: newOrgResponse._id };
-      
-      res.json(result);
+      // TODO: promises, abstraction
+      var newOrgAdmin = { username: req.body.adminUsername, password: bcrypt.hash(req.body.adminPassword, bcrypt.genSaltSync(8)), orgId: newOrgResponse, isAdmin:true };
+
+      db.db("directory").collection("login").insertOne(newOrgAdmin, function (err, result) {
+        if (err) throw err;
+        var newOrgPublic = { username: req.body.publicUsername, password: bcrypt.hash(req.body.userPassword, bcrypt.genSaltSync(8)), orgId: newOrgResponse, isAdmin:false };
+
+        db.db("directory").collection("login").insertOne(newOrgPublic, function (err, result) {
+          if (err) throw err;
+          res.json({pass:bcrypt.hash(req.body.adminPassword, bcrypt.genSaltSync(8))});
+          db.close();
+        });
+      });
     });
   });
 });
