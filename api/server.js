@@ -11,35 +11,20 @@ var ObjectID = require('mongodb').ObjectID;
 const bcrypt = require('bcrypt');
 
 
-// Configure the Bearer strategy for use by Passport.
-//
-// The Bearer strategy requires a `verify` function which receives the
-// credentials (`token`) contained in the request.  The function must invoke
-// `cb` with a user object, which will be set at `req.user` in route handlers
-// after authentication.
-// passport.use(new Strategy(
-//   function (token, cb) {
-//     db.users.findByToken(token, function (err, user) {
-//       if (err) { return cb(err); }
-//       if (!user) { return cb(null, false); }
-//       return cb(null, user);
-//     });
-//   }));
-
 passport.use(new Strategy(
-  function(username, password, cb) {
+  function (username, password, cb) {
     MongoClient.connect(dbConn, function (err, db) {
       if (err) throw err
       db.db("directory").collection("login").findOne({ username: username }, function (err, user) {
-      if (err) { return cb(err); }
-      if (!user) { return cb(null, false); }
+        if (err) { return cb(err); }
+        if (!user) { return cb(null, false); }
 
-      bcrypt.compare(password, user.password, function (err, bcryptResult) {
-       if( !bcryptResult ){ return cb(null, false); }
-      });
-      return cb(null, user);
-    })
-  });
+        bcrypt.compare(password, user.password, function (err, bcryptResult) {
+          if (!bcryptResult) { return cb(null, false); }
+        });
+        return cb(null, user);
+      })
+    });
   }));
 
 // Create a new Express application.
@@ -53,27 +38,6 @@ var dbConn = config.connString;
 
 // TODO: repository pattern
 
-// curl -v -H "Authorization: Bearer 123456789" http://127.0.0.1:3000/login
-// curl -v http://127.0.0.1:3000/login?access_token=123456789
-// app.post('/login',
-  // passport.authenticate('bearer', { session: false }),
-  // );
-
-// var login = function (req, res) {
-//   MongoClient.connect(dbConn, function (err, db) {
-//     if (err) throw err
-//     db.db("directory").collection("login").findOne({ username: req.body.username }, function (err, result) {
-//       if (err) throw err
-//       console.log(result);
-//       // TODO: else logic needed
-
-//       bcrypt.compare(req.body.password, result.password, function (err, bcryptResult) {
-//         db.close();
-//         return bcryptResult;
-//       });
-//     });
-//   });
-// }
 app.post('/login',
   // passport.authenticate('bearer', { session: false }),
   function (req, res) {
@@ -111,13 +75,13 @@ app.post('/signup', function (req, res) {
 
 
       bcrypt.hash(req.body.adminPassword, saltRounds, function (err, adminPasswordHash) {
-        var newOrgAdmin = { username: req.body.adminUsername, password: adminPasswordHash, saltRoundsNum:saltRounds, orgId: newOrgResponse, isAdmin: true };
+        var newOrgAdmin = { username: req.body.adminUsername, password: adminPasswordHash, saltRoundsNum: saltRounds, orgId: newOrgResponse, isAdmin: true };
 
         db.db("directory").collection("login").insertOne(newOrgAdmin, function (err, result) {
           if (err) throw err;
 
           bcrypt.hash(req.body.userPassword, saltRounds, function (err, userPasswordHash) {
-            var newOrgPublic = { username: req.body.publicUsername, password: userPasswordHash, saltRoundsNum:saltRounds, orgId: newOrgResponse, isAdmin: false };
+            var newOrgPublic = { username: req.body.publicUsername, password: userPasswordHash, saltRoundsNum: saltRounds, orgId: newOrgResponse, isAdmin: false };
 
             db.db("directory").collection("login").insertOne(newOrgPublic, function (err, result) {
               if (err) throw err;
@@ -133,7 +97,7 @@ app.post('/signup', function (req, res) {
 });
 
 app.get('/people',
-passport.authenticate('basic', { session: false }),
+  passport.authenticate('basic', { session: false }),
   function (req, res) {
     MongoClient.connect(dbConn, function (err, db) {
       if (err) throw err
@@ -147,7 +111,7 @@ passport.authenticate('basic', { session: false }),
   });
 
 app.post('/people',
-passport.authenticate('basic', { session: false }),
+  passport.authenticate('basic', { session: false }),
   function (req, res) {
     MongoClient.connect(dbConn, function (err, db) {
       if (err) throw err
@@ -178,7 +142,7 @@ app.put('/people', upload.array(),
   });
 
 app.delete('/people',
-passport.authenticate('basic', { session: false }),
+  passport.authenticate('basic', { session: false }),
   function (req, res) {
     MongoClient.connect(dbConn, function (err, db) {
       if (err) throw err
