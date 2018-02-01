@@ -14,7 +14,7 @@ class App extends Component {
     return (
       <div className="App">
         <header className="navbar navbar-expand-lg navbar-dark bg-primary">
-          <h1 className="active "> Shul Directory</h1>
+          <h1 className="active "> Private Directory</h1>
           {/* <img src={logo} className="App-logo my-2 my-lg-0" alt="logo" /> */}
         </header>
         <br />
