@@ -43,19 +43,24 @@ var dbConn = config.connString;
 app.post('/login',
   // passport.authenticate('bearer', { session: false }),
   function (req, res) {
+    MongoClient.connect(dbConn, function (err, db) {
+      if (err) throw err
+      db.db("directory").collection("login").findOne({ username: req.body.username }, function (err, result) {
+        if (err) throw err
+        // TODO: else logic needed
 
-    // bcrypt.compare(myPlaintextPassword, hash, function (err, res) {
-    //   // res == true
-    // });
-    if (bcrypt.compare(req.body.password, this.password)) {
-      res.json({ is:true });
-    }
+        bcrypt.compare(req.body.password, result.password, function (err, bcryptResult) {
+          res.json(bcryptResult);
+          db.close();
+        });
+      });
+    });
   });
 
 app.post('/signup', function (req, res) {
 
   // create org, then admin account, then public account
-
+  const saltRounds = 10;
   var newOrg = { ownerEmail: req.body.ownerEmail, name: req.body.orgName };
 
   MongoClient.connect(dbConn, function (err, db) {
@@ -70,10 +75,7 @@ app.post('/signup', function (req, res) {
       // TODO: promises, abstraction
 
 
-      const saltRounds = 10;
-      const myPlaintextPassword = 's0/\/\P4$$w0rD';
-      const someOtherPlaintextPassword = 'not_bacon';
-
+      
       bcrypt.hash(req.body.adminPassword, saltRounds, function (err, adminPasswordHash) {
         var newOrgAdmin = { username: req.body.adminUsername, password: adminPasswordHash, orgId: newOrgResponse, isAdmin: true };
 
