@@ -32,8 +32,6 @@ var app = express();
 // Configure Express application.
 app.use(require('morgan')('combined'));
 app.use(bodyParser.json()); // for parsing application/json
-
-console.log(config.connString);
 var dbConn = config.connString;
 
 
@@ -48,7 +46,13 @@ app.get('/login',
   });
 
 app.post('/signup', function (req, res) {
-  var newUser = User.build({userName: 'charliebrown', password: models.User.generateHash('asdfasdf')});
+
+  // create org, then admin account, then public account
+
+  var newOrg = { ownerEmail: req.body.ownerEmail, name: req.body.orgName };
+  var newOrgAdmin = { userName: req.body.adminName, password: req.body.adminPassword, orgId: 1};
+  var newOrgPublic = { userName: req.body.userName, password: req.body.userPassword, orgId: 1 };
+
 });
 
 app.get('/people',
