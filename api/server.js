@@ -40,11 +40,15 @@ var dbConn = config.connString;
 
 // curl -v -H "Authorization: Bearer 123456789" http://127.0.0.1:3000/login
 // curl -v http://127.0.0.1:3000/login?access_token=123456789
-app.get('/login',
-  passport.authenticate('bearer', { session: false }),
+app.post('/login',
+  // passport.authenticate('bearer', { session: false }),
   function (req, res) {
+
+    // bcrypt.compare(myPlaintextPassword, hash, function (err, res) {
+    //   // res == true
+    // });
     if (bcrypt.compare(req.body.password, this.password)) {
-      res.json({ username: req.user.username, email: req.user.emails[0].value });
+      res.json({ is:true });
     }
   });
 
@@ -64,16 +68,28 @@ app.post('/signup', function (req, res) {
       newOrgResponse = result.insertedId;
 
       // TODO: promises, abstraction
-      var newOrgAdmin = { username: req.body.adminUsername, password: bcrypt.hash(req.body.adminPassword, bcrypt.genSaltSync(8)), orgId: newOrgResponse, isAdmin:true };
 
-      db.db("directory").collection("login").insertOne(newOrgAdmin, function (err, result) {
-        if (err) throw err;
-        var newOrgPublic = { username: req.body.publicUsername, password: bcrypt.hash(req.body.userPassword, bcrypt.genSaltSync(8)), orgId: newOrgResponse, isAdmin:false };
 
-        db.db("directory").collection("login").insertOne(newOrgPublic, function (err, result) {
+      const saltRounds = 10;
+      const myPlaintextPassword = 's0/\/\P4$$w0rD';
+      const someOtherPlaintextPassword = 'not_bacon';
+
+      bcrypt.hash(req.body.adminPassword, saltRounds, function (err, adminPasswordHash) {
+        var newOrgAdmin = { username: req.body.adminUsername, password: adminPasswordHash, orgId: newOrgResponse, isAdmin: true };
+
+        db.db("directory").collection("login").insertOne(newOrgAdmin, function (err, result) {
           if (err) throw err;
-          res.json({pass:bcrypt.hash(req.body.adminPassword, bcrypt.genSaltSync(8))});
-          db.close();
+
+          bcrypt.hash(req.body.userPassword, saltRounds, function (err, userPasswordHash) {
+            var newOrgPublic = { username: req.body.publicUsername, password: userPasswordHash, orgId: newOrgResponse, isAdmin: false };
+
+            db.db("directory").collection("login").insertOne(newOrgPublic, function (err, result) {
+              if (err) throw err;
+              res.json({ pass: bcrypt.hash(req.body.adminPassword, bcrypt.genSaltSync(8)) });
+              db.close();
+
+            });
+          });
         });
       });
     });
