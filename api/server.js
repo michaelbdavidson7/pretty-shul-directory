@@ -1,6 +1,6 @@
 var express = require('express');
 var passport = require('passport');
-var Strategy = require('passport-http').DigestStrategy;
+var Strategy = require('passport-http').BasicStrategy;
 var bodyParser = require('body-parser');
 var db = require('./db');
 var MongoClient = require('mongodb').MongoClient
@@ -26,19 +26,21 @@ const bcrypt = require('bcrypt');
 //     });
 //   }));
 
-passport.use(new Strategy({ qop: 'auth' },
-  function (username, cb) {
+passport.use(new Strategy(
+  function(username, password, cb) {
     MongoClient.connect(dbConn, function (err, db) {
       if (err) throw err
       db.db("directory").collection("login").findOne({ username: username }, function (err, user) {
-        if (err) { return cb(err); }
-        if (!user) { return cb(null, false); }
-        return cb(null, user, user.password);
-      })
+      if (err) { return cb(err); }
+      if (!user) { return cb(null, false); }
+
+      bcrypt.compare(password, user.password, function (err, bcryptResult) {
+       if( !bcryptResult ){ return cb(null, false); }
+      });
+      return cb(null, user);
     })
+  });
   }));
-
-
 
 // Create a new Express application.
 var app = express();
@@ -53,6 +55,25 @@ var dbConn = config.connString;
 
 // curl -v -H "Authorization: Bearer 123456789" http://127.0.0.1:3000/login
 // curl -v http://127.0.0.1:3000/login?access_token=123456789
+// app.post('/login',
+  // passport.authenticate('bearer', { session: false }),
+  // );
+
+// var login = function (req, res) {
+//   MongoClient.connect(dbConn, function (err, db) {
+//     if (err) throw err
+//     db.db("directory").collection("login").findOne({ username: req.body.username }, function (err, result) {
+//       if (err) throw err
+//       console.log(result);
+//       // TODO: else logic needed
+
+//       bcrypt.compare(req.body.password, result.password, function (err, bcryptResult) {
+//         db.close();
+//         return bcryptResult;
+//       });
+//     });
+//   });
+// }
 app.post('/login',
   // passport.authenticate('bearer', { session: false }),
   function (req, res) {
@@ -112,7 +133,7 @@ app.post('/signup', function (req, res) {
 });
 
 app.get('/people',
-passport.authenticate('digest', { session: false }),
+passport.authenticate('basic', { session: false }),
   function (req, res) {
     MongoClient.connect(dbConn, function (err, db) {
       if (err) throw err
@@ -126,6 +147,7 @@ passport.authenticate('digest', { session: false }),
   });
 
 app.post('/people',
+passport.authenticate('basic', { session: false }),
   function (req, res) {
     MongoClient.connect(dbConn, function (err, db) {
       if (err) throw err
@@ -156,6 +178,7 @@ app.put('/people', upload.array(),
   });
 
 app.delete('/people',
+passport.authenticate('basic', { session: false }),
   function (req, res) {
     MongoClient.connect(dbConn, function (err, db) {
       if (err) throw err
