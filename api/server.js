@@ -1,6 +1,6 @@
 var express = require('express');
 var passport = require('passport');
-var Strategy = require('passport-http-bearer').Strategy;
+var Strategy = require('passport-http').DigestStrategy;
 var bodyParser = require('body-parser');
 var db = require('./db');
 var MongoClient = require('mongodb').MongoClient
@@ -17,14 +17,27 @@ const bcrypt = require('bcrypt');
 // credentials (`token`) contained in the request.  The function must invoke
 // `cb` with a user object, which will be set at `req.user` in route handlers
 // after authentication.
-passport.use(new Strategy(
-  function (token, cb) {
-    db.users.findByToken(token, function (err, user) {
-      if (err) { return cb(err); }
-      if (!user) { return cb(null, false); }
-      return cb(null, user);
-    });
+// passport.use(new Strategy(
+//   function (token, cb) {
+//     db.users.findByToken(token, function (err, user) {
+//       if (err) { return cb(err); }
+//       if (!user) { return cb(null, false); }
+//       return cb(null, user);
+//     });
+//   }));
+
+passport.use(new Strategy({ qop: 'auth' },
+  function (username, cb) {
+    MongoClient.connect(dbConn, function (err, db) {
+      if (err) throw err
+      db.db("directory").collection("login").findOne({ username: username }, function (err, user) {
+        if (err) { return cb(err); }
+        if (!user) { return cb(null, false); }
+        return cb(null, user, user.password);
+      })
+    })
   }));
+
 
 
 // Create a new Express application.
@@ -75,7 +88,7 @@ app.post('/signup', function (req, res) {
       // TODO: promises, abstraction
 
 
-      
+
       bcrypt.hash(req.body.adminPassword, saltRounds, function (err, adminPasswordHash) {
         var newOrgAdmin = { username: req.body.adminUsername, password: adminPasswordHash, orgId: newOrgResponse, isAdmin: true };
 
@@ -99,6 +112,7 @@ app.post('/signup', function (req, res) {
 });
 
 app.get('/people',
+passport.authenticate('digest', { session: false }),
   function (req, res) {
     MongoClient.connect(dbConn, function (err, db) {
       if (err) throw err
