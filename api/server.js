@@ -34,8 +34,10 @@ app.use(require('morgan')('combined'));
 app.use(bodyParser.json()); // for parsing application/json
 
 console.log(config.connString);
-var dbConn2 = config.connString;
+var dbConn = config.connString;
 
+
+// TODO: repository pattern
 
 // curl -v -H "Authorization: Bearer 123456789" http://127.0.0.1:3000/login
 // curl -v http://127.0.0.1:3000/login?access_token=123456789
@@ -45,9 +47,13 @@ app.get('/login',
     res.json({ username: req.user.username, email: req.user.emails[0].value });
   });
 
+app.post('/signup', function (req, res) {
+  var newUser = User.build({userName: 'charliebrown', password: models.User.generateHash('asdfasdf')});
+});
+
 app.get('/people',
   function (req, res) {
-    MongoClient.connect(dbConn2, function (err, db) {
+    MongoClient.connect(dbConn, function (err, db) {
       if (err) throw err
 
       db.db("directory").collection("person").find({}).toArray(function (err, result) {
@@ -60,7 +66,7 @@ app.get('/people',
 
 app.post('/people',
   function (req, res) {
-    MongoClient.connect(dbConn2, function (err, db) {
+    MongoClient.connect(dbConn, function (err, db) {
       if (err) throw err
 
       var testObj = { name: "derp" };
@@ -72,14 +78,14 @@ app.post('/people',
     });
   });
 
-  app.put('/people', upload.array(), 
+app.put('/people', upload.array(),
   function (req, res) {
-    MongoClient.connect(dbConn2, function (err, db) {
+    MongoClient.connect(dbConn, function (err, db) {
       if (err) throw err
 
       console.log(req.body);
-      var queryObj = {_id : ObjectID(req.body._id) };
-      var changeObj = { $set: { name: req.body.name }};
+      var queryObj = { _id: ObjectID(req.body._id) };
+      var changeObj = { $set: { name: req.body.name } };
       db.db("directory").collection("person").updateMany(queryObj, changeObj, function (err, result) {
         if (err) throw err;
         res.json(result);
@@ -88,12 +94,12 @@ app.post('/people',
     });
   });
 
-  app.delete('/people',
+app.delete('/people',
   function (req, res) {
-    MongoClient.connect(dbConn2, function (err, db) {
+    MongoClient.connect(dbConn, function (err, db) {
       if (err) throw err
-      
-      idObj = {_id: ObjectID(req.body._id)}
+
+      idObj = { _id: ObjectID(req.body._id) }
       db.db("directory").collection("person").deleteOne(idObj, function (err, result) {
         if (err) throw err;
         res.json(result);
