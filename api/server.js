@@ -8,6 +8,7 @@ var config = require('./config');
 var multer = require('multer'); // v1.0.5
 var upload = multer(); // for parsing multipart/form-data
 var ObjectID = require('mongodb').ObjectID;
+const bcrypt = require('bcrypt');
 
 
 // Configure the Bearer strategy for use by Passport.
@@ -42,7 +43,9 @@ var dbConn = config.connString;
 app.get('/login',
   passport.authenticate('bearer', { session: false }),
   function (req, res) {
-    res.json({ username: req.user.username, email: req.user.emails[0].value });
+    if (bcrypt.compare(req.body.password, this.password)) {
+      res.json({ username: req.user.username, email: req.user.emails[0].value });
+    }
   });
 
 app.post('/signup', function (req, res) {
@@ -50,9 +53,24 @@ app.post('/signup', function (req, res) {
   // create org, then admin account, then public account
 
   var newOrg = { ownerEmail: req.body.ownerEmail, name: req.body.orgName };
-  var newOrgAdmin = { userName: req.body.adminName, password: req.body.adminPassword, orgId: 1};
-  var newOrgPublic = { userName: req.body.userName, password: req.body.userPassword, orgId: 1 };
 
+  MongoClient.connect(dbConn, function (err, db) {
+    if (err) throw err
+
+    var newOrgResponse = {};
+    // TODO: need to check if exists
+    db.db("directory").collection("org").insertOne(newOrg, function (err, result) {
+      if (err) throw err;
+      this.newOrgResponse = result;
+      db.close();
+
+      // TODO: promises
+      var newOrgAdmin = { username: req.body.adminUserame, password: bcrypt.hash(req.body.adminPassword, bcrypt.genSaltSync(8)), orgId: newOrgResponse._id };
+      var newOrgPublic = { username: req.body.publicUsername, password: bcrypt.hash(req.body.userPassword, bcrypt.genSaltSync(8)), orgId: newOrgResponse._id };
+      
+      res.json(result);
+    });
+  });
 });
 
 app.get('/people',
