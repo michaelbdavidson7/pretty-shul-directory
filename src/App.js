@@ -28,6 +28,7 @@ class App extends Component {
           <Route path='/demo' component={People} />
           <Route path='/' component={AuthPage} />
         </Switch>
+        {/* <footer><a href="https://github.com/michaelbdavidson7">Check out the source code</a></footer> */}
       </div>
     );
   }
