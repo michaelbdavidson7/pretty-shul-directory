@@ -1,6 +1,5 @@
 
 import React from 'react';
-import placeholderImg from './placeholder.svg';
 import  PersonCard  from './PersonCard';
 
 export default class People extends React.Component {

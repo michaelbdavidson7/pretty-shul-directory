@@ -1,3 +1,4 @@
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
-Forgot someone's name in synagogue? Look it up online and save face! 
+Don't remember someone's name? Look it up online and save face!
+Demo: http://michaelbdavidson.com/private-directory
