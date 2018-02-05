@@ -16,7 +16,7 @@ passport.use(new Strategy(
     MongoClient.connect(dbConn, function (err, db) {
       if (err) throw err
       db.db("directory").collection("login").findOne({ username: username }, function (err, user) {
-        if (err) { return cb(err); }
+        if (err) { return cb(err); } 
         if (!user) { return cb(null, false); }
 
         bcrypt.compare(password, user.password, function (err, bcryptResult) {
