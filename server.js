@@ -2,9 +2,9 @@ var express = require('express');
 var passport = require('passport');
 var Strategy = require('passport-http').BasicStrategy;
 var bodyParser = require('body-parser');
-var db = require('./db');
+// var db = require('./db');
 var MongoClient = require('mongodb').MongoClient
-// var config = require('./config');
+var config = require('./config');
 var multer = require('multer'); // v1.0.5
 var upload = multer(); // for parsing multipart/form-data
 var ObjectID = require('mongodb').ObjectID;
@@ -35,6 +35,7 @@ app.use(require('morgan')('combined'));
 app.use(bodyParser.json()); // for parsing application/json
 // console.log(process.env.connString);
 var dbConn = process.env.connString;
+// var dbConn = config.connString;
 
 
 // TODO: repository pattern
