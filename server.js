@@ -10,7 +10,6 @@ var upload = multer(); // for parsing multipart/form-data
 var ObjectID = require('mongodb').ObjectID;
 const bcrypt = require('bcrypt');
 
-
 passport.use(new Strategy(
   function (username, password, cb) {
     MongoClient.connect(dbConn, function (err, db) {
@@ -40,7 +39,7 @@ var dbConn = process.env.connString;
 
 // TODO: repository pattern
 
-app.post('/login',
+app.post('/api/login',
   // passport.authenticate('bearer', { session: false }),
   function (req, res) {
     MongoClient.connect(dbConn, function (err, db) {
@@ -57,7 +56,7 @@ app.post('/login',
     });
   });
 
-app.post('/signup', function (req, res) {
+app.post('/api/signup', function (req, res) {
 
   // create org, then admin account, then public account
   const saltRounds = 10;
@@ -98,7 +97,7 @@ app.post('/signup', function (req, res) {
   });
 });
 
-app.get('/people',
+app.get('/api/people',
   passport.authenticate('basic', { session: false }),
   function (req, res) {
     MongoClient.connect(dbConn, function (err, db) {
@@ -112,7 +111,7 @@ app.get('/people',
     });
   });
 
-app.post('/people',
+app.post('/api/people',
   passport.authenticate('basic', { session: false }),
   function (req, res) {
     MongoClient.connect(dbConn, function (err, db) {
@@ -127,7 +126,7 @@ app.post('/people',
     });
   });
 
-app.put('/people',
+app.put('/api/people',
   passport.authenticate('basic', { session: false }),
   upload.array(),
   function (req, res) {
@@ -145,7 +144,7 @@ app.put('/people',
     });
   });
 
-app.delete('/people',
+app.delete('/api/people',
   passport.authenticate('basic', { session: false }),
   function (req, res) {
     MongoClient.connect(dbConn, function (err, db) {
@@ -160,5 +159,4 @@ app.delete('/people',
     });
   });
 
-
-app.listen(3000);
+app.listen(3001);
