@@ -23,12 +23,12 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "startSever":"node server.js",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
-    "asdfasdf": "node api/server.js"
+    "deploy": "gh-pages -d build"
   },
   "homepage": ".",
   "devDependencies": {

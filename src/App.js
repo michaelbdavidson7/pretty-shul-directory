@@ -3,10 +3,10 @@ import React, { Component } from 'react';
 import './App.css';
 import People from './People';
 import {
-  HashRouter,
+  // HashRouter,
   Switch,
-  Route,
-  Link
+  Route
+  // Link
 } from 'react-router-dom';
 import AuthPage from './AuthPage';
 
