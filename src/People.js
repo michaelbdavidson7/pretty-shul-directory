@@ -10,8 +10,8 @@ export default class People extends React.Component {
     }
     render() {
         return (
-            <div className="col-md-10">
-                <div className="card-columns offset-md-3">
+            <div className="col-xl-10 ">
+                <div className="card-columns offset-xl-3 ">
                     {this.directory.map((person) => {
                         return <PersonCard person={person} />
                     })}
