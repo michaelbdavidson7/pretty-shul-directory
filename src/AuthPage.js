@@ -7,8 +7,10 @@ export default class AuthPage extends React.Component {
         return <div>
             <h2>Remember the face, but not the name?</h2>
             <h4>Our free, password-protected picture directory will help you find the name of the person you were looking for</h4>
+            <br />
             {/* <a href="/demo"></a> */}
             <Link to="/demo">Check out the demo</Link>
+            <br />
             <br />
             <br />
             <div class="container">
