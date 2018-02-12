@@ -16,7 +16,7 @@ class App extends Component {
     return (
       <div className="App">
         <header className="navbar navbar-expand-lg navbar-dark bg-primary">
-          <h1 className="active "> Private Directory</h1>
+          <h1 className="active "> Hidden Directory</h1>
           {/* <img src={logo} className="App-logo my-2 my-lg-0" alt="logo" /> */}
           {/* <form class="form-inline my-2 my-lg-0">
             <button class="btn btn-secondary my-2 my-sm-0" type="submit">Github</button>
