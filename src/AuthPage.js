@@ -1,6 +1,8 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+// import env from '.env';
+import axios from 'axios';
 
 export default class AuthPage extends React.Component {
 
@@ -12,11 +14,19 @@ export default class AuthPage extends React.Component {
         this.handleSignupFormChange = this.handleSignupFormChange.bind(this);
         this.handleLoginSubmit = this.handleLoginSubmit.bind(this);
         this.handleLoginFormChange = this.handleLoginFormChange.bind(this);
+        this.baseUrl = 'https://uuju76txa6.execute-api.us-east-2.amazonaws.com/prod';
     }
 
     handleSignupSubmit(event) {
         this.setState({ username: "", password: "" });
         console.log(event, this.state);
+        axios({
+            method: 'POST',
+            url: this.baseUrl + '/api/signup',
+            data: this.state
+        }).then(res => {
+            console.log(res);
+        });
         event.preventDefault();
     }
 
